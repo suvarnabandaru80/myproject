@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Wishlist — NOIR</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=DM+Sans:wght@200;300;400;500&display=swap" rel="stylesheet"/>
+
+<style>
+.wishlist-header{padding:60px;border-bottom:1px solid var(--border);background:var(--surface)}
+.wishlist-header h1{font-family:var(--serif);font-size:48px;font-weight:400}
+.wishlist-header h1 em{font-style:italic;color:var(--gold)}
+.wishlist-header p{color:var(--muted);font-size:13px;margin-top:8px}
+.wishlist-body{padding:40px 60px 80px}
+.wishlist-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.wishlist-card{background:var(--surface);border:1px solid var(--border);overflow:hidden;position:relative;transition:border-color 0.3s,transform 0.3s}
+.wishlist-card:hover{border-color:var(--faint);transform:translateY(-4px)}
+.wishlist-card-img{aspect-ratio:4/5;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:80px;position:relative}
+.remove-wish{position:absolute;top:12px;right:12px;width:32px;height:32px;background:rgba(10,10,10,0.7);border:1px solid var(--border);color:var(--text);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+.remove-wish:hover{background:var(--danger);border-color:var(--danger)}
+.wishlist-card-body{padding:20px}
+.wishlist-card-name{font-family:var(--serif);font-size:18px;margin-bottom:6px}
+.wishlist-card-cat{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.wishlist-price-row{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.wishlist-price{font-family:var(--serif);font-size:20px;color:var(--gold)}
+.wishlist-original{font-size:13px;color:var(--muted);text-decoration:line-through}
+.wishlist-card-actions{display:flex;gap:8px}
+.empty-wish{text-align:center;padding:120px 40px}
+.empty-icon{font-size:80px;margin-bottom:24px;opacity:0.3}
+.empty-title{font-family:var(--serif);font-size:36px;font-weight:400;margin-bottom:12px}
+.empty-text{color:var(--muted);font-size:14px;margin-bottom:36px}
+.wishlist-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:32px}
+@media(max-width:900px){.wishlist-grid{grid-template-columns:1fr 1fr}.wishlist-body,.wishlist-header{padding:32px}}
+</style>
+<style>
+/* ── RESET & ROOT ───────────────────────────────────────────── */
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0a;--surface:#141414;--surface2:#1e1e1e;--border:#2a2a2a;
+  --text:#f5f0eb;--muted:#888;--faint:#444;
+  --gold:#c9a96e;--gold-light:#e8d5b0;--white:#ffffff;
+  --danger:#e05555;--success:#4caf7d;
+  --serif:'Playfair Display',serif;--sans:'DM Sans',sans-serif;
+  --radius:2px;--radius-lg:4px;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);overflow-x:hidden;min-height:100vh}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;font-family:var(--sans)}
+img{max-width:100%;display:block}
+input,select,textarea{font-family:var(--sans)}
+
+/* ── SCROLLBAR ──────────────────────────────────────────────── */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--faint)}
+
+/* ── NAV ────────────────────────────────────────────────────── */
+#main-nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:20px 60px;background:rgba(10,10,10,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);transition:padding 0.3s}
+.nav-logo{font-family:var(--serif);font-size:22px;font-weight:700;letter-spacing:3px;color:var(--text)}
+.nav-logo span{color:var(--gold)}
+.nav-links{display:flex;gap:36px;list-style:none}
+.nav-links a{font-size:12px;font-weight:400;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);transition:color 0.2s;position:relative}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1px;background:var(--gold);transition:width 0.3s}
+.nav-links a:hover,.nav-links a.active{color:var(--text)}
+.nav-links a:hover::after,.nav-links a.active::after{width:100%}
+.nav-actions{display:flex;gap:20px;align-items:center}
+.nav-icon-btn{color:var(--muted);transition:color 0.2s;position:relative;display:flex}
+.nav-icon-btn:hover{color:var(--gold)}
+
+/* ── BUTTONS ────────────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--sans);font-size:11px;font-weight:500;letter-spacing:2.5px;text-transform:uppercase;border:none;padding:14px 32px;transition:all 0.3s;cursor:pointer}
+.btn-gold{background:var(--gold);color:var(--bg)}
+.btn-gold:hover{background:var(--gold-light)}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border)}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+.btn-dark{background:var(--surface2);color:var(--text)}
+.btn-dark:hover{background:var(--border)}
+.btn-full{width:100%}
+.btn-danger{background:transparent;color:var(--danger);border:1px solid var(--danger)}
+.btn-danger:hover{background:var(--danger);color:white}
+
+/* ── PRODUCT CARD ───────────────────────────────────────────── */
+.product-card{background:var(--surface);border:1px solid var(--border);overflow:hidden;position:relative;transition:border-color 0.3s,transform 0.3s}
+.product-card:hover{border-color:var(--faint);transform:translateY(-4px)}
+.product-card-img{aspect-ratio:3/4;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:80px;position:relative;overflow:hidden}
+.product-card-img .emoji-display{transition:transform 0.5s}
+.product-card:hover .emoji-display{transform:scale(1.08)}
+.product-badge{position:absolute;top:16px;left:16px;font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;background:var(--gold);color:var(--bg)}
+.product-badge.sale{background:var(--danger);color:white}
+.product-badge.new{background:var(--success);color:white}
+.product-card-body{padding:20px}
+.product-card-name{font-family:var(--serif);font-size:17px;font-weight:400;color:var(--text);margin-bottom:6px;line-height:1.3}
+.product-card-cat{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.product-card-footer{display:flex;align-items:center;justify-content:space-between}
+.product-price{font-family:var(--serif);font-size:18px;font-weight:400;color:var(--gold)}
+.product-price-original{font-size:13px;color:var(--muted);text-decoration:line-through;margin-left:8px;font-family:var(--sans)}
+.product-rating{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px}
+.product-rating .stars{color:var(--gold);font-size:10px;letter-spacing:1px}
+.product-actions{display:flex;gap:0;margin-top:16px}
+.product-wish-btn{width:44px;height:44px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0}
+.product-wish-btn:hover,.product-wish-btn.active{color:var(--danger);border-color:var(--danger)}
+.product-view-btn{flex:1;background:var(--surface2);border:1px solid var(--border);border-left:none;color:var(--muted);font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:12px;transition:all 0.2s}
+.product-view-btn:hover{background:var(--gold);color:var(--bg);border-color:var(--gold)}
+
+/* ── FORM ELEMENTS ──────────────────────────────────────────── */
+.form-group{display:flex;flex-direction:column;gap:8px}
+.form-label{font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.form-input{background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:var(--sans);font-size:14px;font-weight:300;padding:14px 18px;outline:none;transition:border-color 0.3s;width:100%}
+.form-input:focus{border-color:var(--gold)}
+.form-input::placeholder{color:var(--faint)}
+select.form-input{cursor:pointer}
+select.form-input option{background:var(--surface)}
+
+/* ── PAGE WRAPPER ───────────────────────────────────────────── */
+.page-wrap{padding-top:80px;min-height:100vh}
+
+/* ── SECTION LABELS ─────────────────────────────────────────── */
+.section-tag{font-size:10px;font-weight:500;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
+.section-title{font-family:var(--serif);font-size:48px;font-weight:400;line-height:1.1;color:var(--text)}
+.section-title em{font-style:italic;color:var(--gold)}
+
+/* ── FOOTER ─────────────────────────────────────────────────── */
+footer{background:var(--surface);border-top:1px solid var(--border);padding:80px 60px 0;margin-top:80px}
+.footer-inner{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:60px;padding-bottom:60px}
+.footer-logo{font-family:var(--serif);font-size:22px;font-weight:700;letter-spacing:3px;color:var(--text);margin-bottom:16px}
+.footer-logo span{color:var(--gold)}
+.footer-tagline{font-size:13px;color:var(--muted);line-height:1.8;max-width:220px;margin-bottom:28px}
+.footer-social{display:flex;gap:12px}
+.footer-social a{font-size:11px;font-weight:500;letter-spacing:1px;color:var(--muted);border:1px solid var(--border);padding:6px 12px;transition:all 0.2s}
+.footer-social a:hover{color:var(--gold);border-color:var(--gold)}
+.footer-col-title{font-size:10px;font-weight:500;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:20px}
+.footer-links{list-style:none;display:flex;flex-direction:column;gap:10px}
+.footer-links a{font-size:13px;color:var(--muted);transition:color 0.2s}
+.footer-links a:hover{color:var(--text)}
+.footer-bottom{border-top:1px solid var(--border);padding:24px 0 32px;display:flex;justify-content:space-between;align-items:center}
+.footer-bottom span{font-size:11px;color:var(--faint)}
+.footer-legal{display:flex;gap:24px}
+.footer-legal a{font-size:11px;color:var(--faint);transition:color 0.2s}
+.footer-legal a:hover{color:var(--muted)}
+
+/* ── RESPONSIVE ─────────────────────────────────────────────── */
+@media(max-width:900px){
+  #main-nav{padding:16px 24px}
+  .nav-links{display:none}
+  .footer-inner{grid-template-columns:1fr 1fr;gap:32px}
+  footer{padding:60px 24px 0}
+}
+
+</style>
+</head>
+<body>
+<div id="nav-placeholder"></div>
+<div class="page-wrap">
+<div class="wishlist-header">
+  <div class="section-tag">Saved Items</div>
+  <h1>My <em>Wishlist</em></h1>
+  <p id="wish-count">0 saved items</p>
+</div>
+<div class="wishlist-body">
+  <div id="wishlist-container"></div>
+</div>
+</div>
+<div id="footer-placeholder"></div>
+
+<script>
+// ── SHARED STORE DATA ──────────────────────────────────────────
+const STORE = {
+  name: 'NOIR',
+  tagline: 'Premium Fashion & Lifestyle',
+
+  products: [
+    { id:1, name:'Obsidian Leather Jacket', category:'outerwear', price:18500, original:22000, rating:4.8, reviews:124, badge:'Best Seller', emoji:'🧥', desc:'Premium full-grain leather jacket with quilted lining, YKK zippers, and a timeless silhouette built to last decades.', tags:['leather','jacket','premium'], colors:['#1a1a1a','#4a3728','#2c3e50'], sizes:['XS','S','M','L','XL'] },
+    { id:2, name:'Silk Noir Blouse', category:'tops', price:6800, original:8500, rating:4.7, reviews:89, badge:'New', emoji:'👘', desc:'Pure mulberry silk blouse with hand-rolled hems, mother-of-pearl buttons, and a relaxed luxurious drape.', tags:['silk','blouse','luxury'], colors:['#f5f0eb','#1a1a1a','#8b6b5e'], sizes:['XS','S','M','L'] },
+    { id:3, name:'Tailored Charcoal Trousers', category:'bottoms', price:9200, original:null, rating:4.9, reviews:203, badge:'Top Rated', emoji:'👔', desc:'Hand-finished wool-blend trousers with a sharp taper and double pleats, cut for a confident modern silhouette.', tags:['trousers','wool','tailored'], colors:['#4a4a4a','#1a1a1a','#2d4a3e'], sizes:['28','30','32','34','36'] },
+    { id:4, name:'Merino Turtleneck', category:'tops', price:5400, original:6200, rating:4.6, reviews:156, badge:null, emoji:'🧶', desc:'Extra-fine 18.5-micron merino wool turtleneck. Feather-light, non-itch, and perfectly temperature-regulating.', tags:['merino','knitwear','winter'], colors:['#d4c5b5','#1a1a1a','#8b7355'], sizes:['XS','S','M','L','XL'] },
+    { id:5, name:'Chelsea Ankle Boots', category:'footwear', price:14200, original:16000, rating:4.8, reviews:78, badge:'Sale', emoji:'👢', desc:'Hand-welted calfskin Chelsea boots with elastic gussets and a classic rubber sole. Handcrafted in Portugal.', tags:['boots','leather','chelsea'], colors:['#1a1a1a','#4a3728'], sizes:['38','39','40','41','42','43'] },
+    { id:6, name:'Cashmere Wrap Coat', category:'outerwear', price:32000, original:38000, rating:4.9, reviews:67, badge:'Luxury', emoji:'🧣', desc:'Double-faced cashmere wrap coat with tortoiseshell horn buttons. The definitive investment piece for any wardrobe.', tags:['cashmere','coat','luxury'], colors:['#c8b89a','#1a1a1a','#6b4c3b'], sizes:['XS','S','M','L'] },
+    { id:7, name:'Structured Tote Bag', category:'accessories', price:12500, original:null, rating:4.7, reviews:91, badge:'New', emoji:'👜', desc:'Full-grain pebbled leather tote with suede interior, magnetic closure, and polished gold hardware. Holds everything.', tags:['bag','leather','tote'], colors:['#1a1a1a','#4a3728','#c8b89a'], sizes:['One Size'] },
+    { id:8, name:'Minimalist Watch', category:'accessories', price:24000, original:28000, rating:4.8, reviews:145, badge:'Sale', emoji:'⌚', desc:'Swiss quartz movement, 40mm stainless steel case, sapphire crystal glass, and a full-grain leather strap.', tags:['watch','accessories','premium'], colors:['#c0c0c0','#1a1a1a','#c8a96e'], sizes:['One Size'] },
+  ],
+
+  categories: ['All','outerwear','tops','bottoms','footwear','accessories'],
+};
+
+// ── CART MANAGEMENT ───────────────────────────────────────────
+const Cart = {
+  get() { try { return JSON.parse(localStorage.getItem('noir_cart') || '[]'); } catch(e){ return []; } },
+  save(c) { localStorage.setItem('noir_cart', JSON.stringify(c)); Cart.updateBadge(); },
+  add(productId, size, color, qty=1) {
+    const cart = Cart.get();
+    const key = `${productId}-${size}-${color}`;
+    const existing = cart.find(i => i.key === key);
+    if (existing) { existing.qty += qty; } 
+    else { const p = STORE.products.find(p => p.id === productId); cart.push({key, productId, size, color, qty, price:p.price, name:p.name, emoji:p.emoji}); }
+    Cart.save(cart);
+    Cart.flash();
+  },
+  remove(key) { Cart.save(Cart.get().filter(i => i.key !== key)); },
+  update(key, qty) {
+    const cart = Cart.get();
+    const item = cart.find(i => i.key === key);
+    if (item) { item.qty = qty; if (item.qty <= 0) return Cart.remove(key); }
+    Cart.save(cart);
+  },
+  total() { return Cart.get().reduce((s,i) => s + i.price * i.qty, 0); },
+  count() { return Cart.get().reduce((s,i) => s + i.qty, 0); },
+  clear() { Cart.save([]); },
+  updateBadge() {
+    document.querySelectorAll('.cart-count').forEach(el => {
+      const c = Cart.count(); el.textContent = c; el.style.display = c > 0 ? 'flex' : 'none';
+    });
+  },
+  flash() {
+    document.querySelectorAll('.cart-icon').forEach(el => { el.classList.add('flash'); setTimeout(()=>el.classList.remove('flash'),600); });
+    Cart.updateBadge();
+    showToast('Added to cart ✓');
+  }
+};
+
+// ── WISHLIST ─────────────────────────────────────────────────
+const Wishlist = {
+  get() { try { return JSON.parse(localStorage.getItem('noir_wishlist') || '[]'); } catch(e){ return []; } },
+  toggle(id) {
+    let w = Wishlist.get();
+    if (w.includes(id)) { w = w.filter(x => x !== id); showToast('Removed from wishlist'); }
+    else { w.push(id); showToast('Added to wishlist ♡'); }
+    localStorage.setItem('noir_wishlist', JSON.stringify(w));
+    document.querySelectorAll(`[data-wish="${id}"]`).forEach(el => el.classList.toggle('active', w.includes(id)));
+  },
+  has(id) { return Wishlist.get().includes(id); }
+};
+
+// ── TOAST ─────────────────────────────────────────────────────
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  if (!t) { t = document.createElement('div'); t.id = 'toast'; document.body.appendChild(t); }
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── FORMAT PRICE ──────────────────────────────────────────────
+function fmt(n) { return '₹' + n.toLocaleString('en-IN'); }
+
+// ── SHARED NAV ────────────────────────────────────────────────
+function renderNav(activePage='') {
+  const pages = [
+    {label:'Shop', href:'shop.html'},
+    {label:'Collections', href:'collections.html'},
+    {label:'About', href:'about.html'},
+  ];
+  return `
+  <nav id="main-nav">
+    <a href="index.html" class="nav-logo">NOIR<span>.</span></a>
+    <ul class="nav-links">
+      ${pages.map(p=>`<li><a href="${p.href}" class="${activePage===p.label?'active':''}">${p.label}</a></li>`).join('')}
+    </ul>
+    <div class="nav-actions">
+      <a href="wishlist.html" class="nav-icon-btn" title="Wishlist">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+      </a>
+      <a href="cart.html" class="nav-icon-btn cart-icon" title="Cart">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+        <span class="cart-count" style="display:none">0</span>
+      </a>
+      <a href="login.html" class="nav-icon-btn" title="Account">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      </a>
+    </div>
+  </nav>`;
+}
+
+// ── SHARED FOOTER ─────────────────────────────────────────────
+function renderFooter() {
+  return `
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="footer-logo">NOIR<span>.</span></div>
+        <p class="footer-tagline">Premium fashion crafted for those who believe style is a language.</p>
+        <div class="footer-social">
+          <a href="#">IG</a><a href="#">FB</a><a href="#">TW</a><a href="#">YT</a>
+        </div>
+      </div>
+      <div><div class="footer-col-title">Shop</div>
+        <ul class="footer-links"><li><a href="shop.html">All Products</a></li><li><a href="shop.html?cat=outerwear">Outerwear</a></li><li><a href="shop.html?cat=tops">Tops</a></li><li><a href="shop.html?cat=bottoms">Bottoms</a></li><li><a href="shop.html?cat=accessories">Accessories</a></li></ul>
+      </div>
+      <div><div class="footer-col-title">Help</div>
+        <ul class="footer-links"><li><a href="#">Shipping Info</a></li><li><a href="#">Returns</a></li><li><a href="#">Size Guide</a></li><li><a href="#">Track Order</a></li><li><a href="#">FAQ</a></li></ul>
+      </div>
+      <div><div class="footer-col-title">Company</div>
+        <ul class="footer-links"><li><a href="about.html">About Us</a></li><li><a href="#">Careers</a></li><li><a href="#">Press</a></li><li><a href="#">Sustainability</a></li><li><a href="#">Contact</a></li></ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 NOIR. All rights reserved.</span>
+      <div class="footer-legal"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Cookies</a></div>
+    </div>
+  </footer>`;
+}
+
+// ── SHARED CSS ─────────────────────────────────────────────────
+function injectSharedCSS() {
+  const style = document.createElement('style');
+  style.textContent = `
+    #toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(80px);background:#0a0a0a;color:#fff;font-size:13px;font-family:'DM Sans',sans-serif;padding:12px 28px;border-bottom:2px solid #c9a96e;opacity:0;transition:all 0.35s;z-index:9999;pointer-events:none;letter-spacing:0.5px;white-space:nowrap}
+    #toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+    .cart-icon{position:relative}
+    .cart-count{position:absolute;top:-6px;right:-8px;background:#c9a96e;color:#0a0a0a;font-size:10px;font-weight:700;width:18px;height:18px;border-radius:50%;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif}
+    @keyframes cartFlash{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
+    .cart-icon.flash svg{animation:cartFlash 0.6s ease}
+  `;
+  document.head.appendChild(style);
+}
+
+// init on load
+document.addEventListener('DOMContentLoaded', () => {
+  injectSharedCSS();
+  Cart.updateBadge();
+});
+
+
+document.getElementById('nav-placeholder').innerHTML = renderNav();
+document.getElementById('footer-placeholder').innerHTML = renderFooter();
+
+function renderWishlist() {
+  const ids = Wishlist.get();
+  const container = document.getElementById('wishlist-container');
+  document.getElementById('wish-count').textContent = ids.length + ' saved item' + (ids.length!==1?'s':'');
+
+  if(ids.length===0){
+    container.innerHTML=`<div class="empty-wish"><div class="empty-icon">♡</div><h2 class="empty-title">Nothing saved yet</h2><p class="empty-text">Browse our collection and save your favourites here.</p><a href="shop.html" class="btn btn-gold">Explore Collection</a></div>`;
+    return;
+  }
+
+  const products = ids.map(id=>STORE.products.find(p=>p.id===id)).filter(Boolean);
+  container.innerHTML=`
+    <div class="wishlist-bar">
+      <span style="font-size:13px;color:var(--muted)">${products.length} item${products.length!==1?'s':''}</span>
+      <div style="display:flex;gap:12px">
+        <button class="btn btn-gold" style="font-size:11px" onclick="addAllToCart()">Add All to Cart</button>
+        <button class="btn btn-outline" style="font-size:11px" onclick="clearWishlist()">Clear All</button>
+      </div>
+    </div>
+    <div class="wishlist-grid">${products.map(p=>`
+      <div class="wishlist-card">
+        <div class="wishlist-card-img">
+          ${p.badge?`<div class="product-badge${p.badge==='Sale'?' sale':p.badge==='New'?' new':''}">${p.badge}</div>`:''}
+          <span style="font-size:80px">${p.emoji}</span>
+          <button class="remove-wish" onclick="removeFromWish(${p.id})" title="Remove">×</button>
+        </div>
+        <div class="wishlist-card-body">
+          <div class="wishlist-card-cat">${p.category}</div>
+          <div class="wishlist-card-name">${p.name}</div>
+          <div class="wishlist-price-row">
+            <span class="wishlist-price">${fmt(p.price)}</span>
+            ${p.original?`<span class="wishlist-original">${fmt(p.original)}</span>`:''}
+          </div>
+          <div class="wishlist-card-actions">
+            <button class="btn btn-gold" style="flex:1;height:44px;font-size:10px" onclick="quickAddToCart(${p.id})">Add to Cart</button>
+            <button class="btn btn-outline" style="height:44px;font-size:10px;padding:0 14px" onclick="location.href='product.html?id=${p.id}'">View</button>
+          </div>
+        </div>
+      </div>`).join('')}
+    </div>`;
+}
+
+function removeFromWish(id){ Wishlist.toggle(id); renderWishlist(); }
+function clearWishlist(){ if(confirm('Clear entire wishlist?')){localStorage.removeItem('noir_wishlist');renderWishlist();showToast('Wishlist cleared');} }
+function quickAddToCart(id){ const p=STORE.products.find(x=>x.id===id); Cart.add(id,p.sizes[0],p.colors[0],1); }
+function addAllToCart(){ Wishlist.get().forEach(id=>{ const p=STORE.products.find(x=>x.id===id); if(p) Cart.add(id,p.sizes[0],p.colors[0],1); }); showToast(`${Wishlist.get().length} items added to cart`); }
+
+renderWishlist();
+</script>
+</body>
+</html>
